@@ -366,6 +366,16 @@ SQL
     def has_accepted_answer
       object.custom_fields["accepted_answer_post_id"] ? true : false
     end
+
+    if SiteSetting.empty_box_on_unsolved
+      attributes :can_have_answer
+
+      def can_have_answer
+        return true if SiteSetting.allow_solved_on_all_topics
+
+        return scope.allow_accepted_answers_on_category?(object.category_id)
+      end
+    end
   end
 
   TopicList.preloaded_custom_fields << "accepted_answer_post_id" if TopicList.respond_to? :preloaded_custom_fields
